@@ -1,58 +1,42 @@
+use std::time::SystemTime;
 use num_bigint::BigInt;
 use num_traits::identities::Zero;
+use crate::c_rand::CRandom;
 
-#[link(name = "crand", kind = "static")]
 
-mod c {
-    extern "C" {
-        pub fn my_rand() -> i32;
-        pub fn my_srand(seed: i32);
-        pub fn my_time() -> u32;
+fn time() -> u64 {
+    match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+        Ok(n) => n.as_secs(),
+        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
     }
 }
 
-pub fn rand() -> i32 {
-    unsafe {
-        c::my_rand() as i32
-    }
+pub fn sysrand() -> u32 {
+    sysrand_timestamp(time() as u32)
 }
 
-pub fn srand(seed: u32) {
-    unsafe {
-        c::my_srand(seed as i32)
-    }
-}
-
-pub fn timestamp() -> u32 {
-    unsafe {
-        c::my_time()
-    }
-}
-
-pub fn sysrand() -> i32 {
-    sysrand_timestamp(timestamp())
-}
-
-pub fn sysrand_timestamp(timestamp: u32) -> i32 {
-    srand(timestamp);
-    rand()
+pub fn sysrand_timestamp(timestamp: u32) -> u32 {
+    let mut r = CRandom::new();
+    r.srand(timestamp);
+    r.rand()
 }
 
 type RandomSeed = u64;
 
-pub struct Random {
-    rr: u64
+pub struct AribRandom {
+    rr: u64,
+    state: CRandom
 }
 
-impl Random {
+impl AribRandom {
     pub fn new() -> Self {
-        let mut result = Random { rr: 0 };
+        let mut result = Self { rr: 0, state: CRandom::new() };
         result.inirandstate();
         result
     }
 
     pub fn init_timestamp(timestamp: u32) -> Self {
-        let mut result = Random { rr: 0 };
+        let mut result = Self { rr: 0, state: CRandom::new() };
         result.inirandstate_timestamp(timestamp);
         result
     }
@@ -63,7 +47,7 @@ impl Random {
     }
 
     fn inirandstate(&mut self) {
-        self.inirandstate_timestamp(timestamp())
+        self.inirandstate_timestamp(time() as u32)
     }
 
     fn print_state(&self) {
@@ -73,18 +57,18 @@ impl Random {
     fn inirandstate_timestamp(&mut self, timestamp: u32)
     {
         self.rr = 0;
-         self.print_state();
+        self.print_state();
         println!("sysrand_timestamp: {}", sysrand_timestamp(timestamp));
         self.set_nth_word(1, sysrand_timestamp(timestamp) as u16);
-         self.print_state();
+        self.print_state();
         self.nextrand1();
-         self.print_state();
+        self.print_state();
         self.set_nth_word(0, sysrand_timestamp(timestamp) as u16);
-         self.print_state();
+        self.print_state();
         self.nextrand1();
-         self.print_state();
+        self.print_state();
         self.set_nth_word(3, 1);
-         self.print_state();
+        self.print_state();
     }
 
     fn nextrand1(&mut self) {
@@ -125,11 +109,3 @@ impl Random {
         self.rr
     }
 }
-
-
-
-
-
-
-
-

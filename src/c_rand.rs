@@ -1,7 +1,6 @@
+use std::time::SystemTime;
 
-const RAND_MAX: u32 = 2147483647;
-
-pub struct Random {
+pub struct CRandom {
     front_index: usize,
     rear_index: usize,
     table_len: usize,
@@ -12,7 +11,14 @@ pub struct Random {
     table: [i32; 32]
 }
 
-impl Random {
+fn time() -> u64 {
+    match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+        Ok(n) => n.as_secs(),
+        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    }
+}
+
+impl CRandom {
     pub fn new() -> Self {
         Self {
             front_index: 4,
@@ -43,19 +49,31 @@ impl Random {
         println!();
     }
 
-    pub fn rand2(&mut self) -> i32 {
-        let mut result: i32;
-
-        let val: u32 = self.table[self.front_index] as u32 + self.table[self.rear_index] as u32;
-        result = (val >> 1) as i32;
-
-        self.front_index = (self.front_index + 1) % self.table_len;
-
-        if self.front_index == 0 {
-            self.rear_index = (self.rear_index + 1) % self.table_len;
+    pub fn srand(&mut self, seed: u32) {
+        let mut seed = seed;
+        if seed == 0 {
+            seed = 1;
+        }
+        self.table[self.state_index] = seed as i32;
+        let mut word: i32 = seed as i32;
+        for i in 1..self.rand_deg {
+            let hi: i64 = (word / 127773) as i64;
+            let lo: i64 = (word % 127773) as i64;
+            word = (16807 * lo - 2836 * hi) as i32;
+            if word < 0 {
+                word += 2147483647;
+            }
+            self.table[self.state_index + i] = word;
         }
 
-        result
+        self.print_states();
+
+        self.front_index = self.state_index + self.rand_sep;
+        self.rear_index = self.state_index;
+
+        for _ in 0..self.rand_deg * 10 {
+            self.rand();
+        }
     }
 
     pub fn rand(&mut self) -> u32 {
@@ -77,34 +95,5 @@ impl Random {
             }
         }
         result as u32
-    }
-
-    pub fn srand(&mut self, seed: u64) {
-        let mut seed = seed;
-        if seed == 0 {
-            seed = 1;
-        }
-        self.table[self.state_index] = (seed & 0xFFFFFFFF) as i32;
-
-        let mut word: i32 = seed as i32;
-
-        for i in 1..self.rand_deg {
-            let hi: i64 = (word / 127773) as i64;
-            let lo: i64 = (word % 127773) as i64;
-            word = (16807 * lo - 2836 * hi) as i32;
-            if word < 0 {
-                word += 2147483647;
-            }
-            self.table[self.state_index + i] = word;
-        }
-
-        self.front_index = self.state_index + self.rand_sep;
-        self.rear_index = self.state_index;
-
-        for i in 0..self.rand_deg*10 {
-            self.rand();
-            println!("index: {}", i);
-            self.print_states();
-        }
     }
 }

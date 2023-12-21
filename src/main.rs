@@ -1,12 +1,13 @@
 #![allow(dead_code)]
 
-mod rand;
-mod rand2;
+mod c_rand;
+mod arib_rand;
 
 use num_bigint::BigInt;
+use crate::arib_rand::AribRandom;
 // use rand::Random;
 // use crate::rand::{rand, srand, timestamp};
-use crate::rand2::Random;
+use crate::c_rand::CRandom;
 
 fn main() {
     // let start: u32 = 1703088834 - 60;
@@ -26,24 +27,14 @@ fn main() {
 
     // println!("timestamp {}", timestamp());
 
-    // let mut r = Random::init_timestamp(1);
+    // let mut r = AribRandom::init_timestamp(1);
     // println!("seed: {}, random: {}", r.current_seed(), r.random(BigInt::from(100)));
     // println!("wanted");
     // println!("seed: {}, random: {}", 40999_47846_45464u64, 78);
 
-
-    // srand(1);
-    // println!("rands: {}, {}", rand(), rand());
-    // println!("expected: {}, {}", 846930886, 1804289383);
-
-    let mut r = Random::new();
+    let mut r = CRandom::new();
     r.srand(1);
-    println!("rands: {}, {}, {}", r.rand(), r.rand(), r.rand());
-    println!("expected: {}, {}, {}", 1681692777, 846930886, 1804289383);
-
-    // wanted:
-    // seed = 40999_47846_45464
-    // random = 78
+    println!("{} {}", r.rand(), r.rand());
 
     /*
     rr = 1 0 54156 0
