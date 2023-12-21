@@ -1,4 +1,3 @@
-use std::time::SystemTime;
 
 pub struct CRandom {
     front_index: usize,
@@ -9,13 +8,6 @@ pub struct CRandom {
     rand_deg: usize,
     rand_sep: usize,
     table: [i32; 32]
-}
-
-fn time() -> u64 {
-    match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
-        Ok(n) => n.as_secs(),
-        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
-    }
 }
 
 impl CRandom {
@@ -66,8 +58,6 @@ impl CRandom {
             self.table[self.state_index + i] = word;
         }
 
-        self.print_states();
-
         self.front_index = self.state_index + self.rand_sep;
         self.rear_index = self.state_index;
 
@@ -78,7 +68,7 @@ impl CRandom {
 
     pub fn rand(&mut self) -> u32 {
         let val: u32;
-        let mut result: i32;
+        let result: i32;
 
         self.table[self.front_index] = (self.table[self.front_index] as u32).wrapping_add(self.table[self.rear_index] as u32) as i32;
         val = self.table[self.front_index] as u32;

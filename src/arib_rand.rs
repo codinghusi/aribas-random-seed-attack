@@ -57,27 +57,20 @@ impl AribRandom {
     fn inirandstate_timestamp(&mut self, timestamp: u32)
     {
         self.rr = 0;
-        self.print_state();
-        println!("sysrand_timestamp: {}", sysrand_timestamp(timestamp));
         self.set_nth_word(1, sysrand_timestamp(timestamp) as u16);
-        self.print_state();
         self.nextrand1();
-        self.print_state();
         self.set_nth_word(0, sysrand_timestamp(timestamp) as u16);
-        self.print_state();
         self.nextrand1();
-        self.print_state();
         self.set_nth_word(3, 1);
-        self.print_state();
     }
 
     fn nextrand1(&mut self) {
         let inc = 57777u64;
         let scale = 56857u64;
-        let mask = 0xFFFF_FFFF_FFFFu64;
+        let mask = 0xFFFF_FFFF_FFFF_FFFFu64;
         let mut temp = self.rr & mask;
-        temp = (temp + inc) & mask;
-        temp = (temp + scale) & mask;
+        temp = (temp.wrapping_add(inc)) & mask;
+        temp = (temp.wrapping_mul(scale)) & mask;
         self.rr = temp;
         self.set_nth_word(3, 1);
     }
@@ -85,21 +78,29 @@ impl AribRandom {
     fn nextrand2(&mut self) {
         let inc = 57777u64;
         let scale = 56857u64;
-        let mask = 0xFFFF_FFFFu64;
+        let mask = 0xFFFF_FFFF_FFFFu64;
         let mut temp = self.rr & mask;
-        temp = (temp + inc) & mask;
-        temp = (temp + scale) & mask;
+        temp = (temp.wrapping_add(inc)) & mask;
+        temp = (temp.wrapping_mul(scale)) & mask;
         self.rr = temp;
         self.set_nth_word(3, 1);
     }
 
     pub fn random(&mut self, m: BigInt) -> BigInt {
         let mut result = BigInt::zero();
-        self.nextrand1();
         let len = m.to_bytes_be().1.len();
-        for i in (0..len).step_by(2) {
-            let rand_word = ((self.rr >> 8) & 0xFFFF) as u16;
-            result |= BigInt::from(rand_word) << (i * 8);
+        let len16 = len / 2;
+        if len <= 2 {
+            self.nextrand2();
+            if m.is_zero() {
+                return m;
+            }
+            return BigInt::from(((self.rr >> 16) & 0xFFFF) % m);
+        }
+        for i in (0..len16).step_by(2) {
+            self.nextrand1();
+            let rand_word = ((self.rr >> 16) & 0xFFFF_FFFF) as u32;
+            result |= BigInt::from(rand_word) << (i * 32);
         }
         result %= m;
         return result;
