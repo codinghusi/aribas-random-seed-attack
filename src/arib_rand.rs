@@ -29,6 +29,12 @@ pub struct AribRandom {
 }
 
 impl AribRandom {
+    pub fn random_seed(&mut self, seed:u64){
+        self.rr = seed;
+        self.set_nth_word(3, 1);
+        
+    }
+
     pub fn new() -> Self {
         let mut result = Self { rr: 0, state: CRandom::new() };
         result.inirandstate();
