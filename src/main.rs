@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod rand;
 mod rand2;
 
@@ -36,8 +38,8 @@ fn main() {
 
     let mut r = Random::new();
     r.srand(1);
-    println!("rands: {}, {}", r.rand(), r.rand());
-    println!("expected: {}, {}", 846930886, 1804289383);
+    println!("rands: {}, {}, {}", r.rand(), r.rand(), r.rand());
+    println!("expected: {}, {}, {}", 1681692777, 846930886, 1804289383);
 
     // wanted:
     // seed = 40999_47846_45464
