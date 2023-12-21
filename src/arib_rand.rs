@@ -99,9 +99,10 @@ impl AribRandom {
         }
         for i in (0..len16).step_by(2) {
             self.nextrand1();
-            let rand_word = ((self.rr >> 16) & 0xFFFF_FFFF) as u32;
-            result |= BigInt::from(rand_word) << (i * 32);
+            let dword = ((self.rr >> 16) & 0xFFFF_FFFF) as u32;
+            result |= BigInt::from(dword) << (i * 16);
         }
+        result &= !(BigInt::from(0xFFFF) << (len * 8));  // somehow the leftmost 16 bit need to be cut away, idk
         result %= m;
         return result;
     }
