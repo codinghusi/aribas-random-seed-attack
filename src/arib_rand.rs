@@ -1,3 +1,4 @@
+use std::num::Wrapping;
 use std::time::SystemTime;
 use num_bigint::BigInt;
 use num_traits::identities::Zero;
@@ -29,21 +30,9 @@ pub struct AribRandom {
 }
 
 impl AribRandom {
-    pub fn random_seed(&mut self, seed:u64){
-        self.rr = seed;
-        self.set_nth_word(3, 1);
-        
-    }
-
     pub fn new() -> Self {
         let mut result = Self { rr: 0, state: CRandom::new() };
         result.inirandstate();
-        result
-    }
-
-    pub fn init_timestamp(timestamp: u32) -> Self {
-        let mut result = Self { rr: 0, state: CRandom::new() };
-        result.inirandstate_timestamp(timestamp);
         result
     }
 
@@ -56,7 +45,7 @@ impl AribRandom {
         self.inirandstate_timestamp(time() as u32)
     }
 
-    fn print_state(&self) {
+    pub fn print_state(&self) {
         println!("rr = {} {} {} {}", (self.rr >> (3 * 16)) & 0xFFFF, (self.rr >> (2 * 16)) & 0xFFFF, (self.rr >> (1 * 16)) & 0xFFFF, (self.rr >> (0 * 16)) & 0xFFFF);
     }
 
@@ -64,47 +53,60 @@ impl AribRandom {
     {
         self.rr = 0;
         self.set_nth_word(1, sysrand_timestamp(timestamp) as u16);
-        self.nextrand1();
+        self.nextrand_3();
         self.set_nth_word(0, sysrand_timestamp(timestamp) as u16);
-        self.nextrand1();
+        self.nextrand_3();
         self.set_nth_word(3, 1);
     }
 
-    fn nextrand1(&mut self) {
-        let inc = 57777u64;
-        let scale = 56857u64;
-        let mask = 0xFFFF_FFFF_FFFF_FFFFu64;
-        let mut temp = self.rr & mask;
-        temp = (temp.wrapping_add(inc)) & mask;
-        temp = (temp.wrapping_mul(scale)) & mask;
-        self.rr = temp;
+    fn nextrand_3(&mut self) {
+        self.nextrand_mask(0xFFFF_FFFF_FFFFu64, 0xFFFF_FFFF_FFFF_FFFFu64, 48);
+    }
+
+    fn nextrand_2(&mut self) {
+        self.nextrand_mask(0xFFFF_FFFFu64, 0xFFFF_FFFF_FFFFu64, 32);
+    }
+
+    fn nextrand_mask(&mut self, mask1: u64, mask2: u64, shift: u8) {
+        let inc = Wrapping(57777u64);
+        let scale = Wrapping(56857u64);
+        let mut temp = Wrapping(self.rr);
+
+        let a = Wrapping(temp.0 & mask1) + inc;
+        if ((a.0 & !mask1) >> shift) == 0 {
+            temp = Wrapping(temp.0 & !mask1) + a;
+        } else {
+            temp = Wrapping(temp.0 & !mask2) + a;
+        }
+        // self.rr = temp.0; print!("temp1 = "); self.print_state();
+
+        let a = Wrapping(temp.0 & mask1) * scale;
+        if ((a.0 & !mask1) >> shift) == 0 {
+            temp = Wrapping(temp.0 & !mask1) + a;
+        } else {
+            temp = Wrapping(temp.0 & !mask2) + a;
+        }
+        // self.rr = temp.0; print!("temp2 = "); self.print_state();
+
+        self.rr = temp.0;
         self.set_nth_word(3, 1);
     }
 
-    fn nextrand2(&mut self) {
-        let inc = 57777u64;
-        let scale = 56857u64;
-        let mask = 0xFFFF_FFFF_FFFFu64;
-        let mut temp = self.rr & mask;
-        temp = (temp.wrapping_add(inc)) & mask;
-        temp = (temp.wrapping_mul(scale)) & mask;
-        self.rr = temp;
-        self.set_nth_word(3, 1);
-    }
+
 
     pub fn random(&mut self, m: BigInt) -> BigInt {
         let mut result = BigInt::zero();
         let len = m.to_bytes_be().1.len();
-        let len16 = len / 2;
+        let len16 = (len + 1) / 2;
         if len <= 2 {
-            self.nextrand2();
+            self.nextrand_2();
             if m.is_zero() {
                 return m;
             }
             return BigInt::from(((self.rr >> 16) & 0xFFFF) % m);
         }
         for i in (0..len16).step_by(2) {
-            self.nextrand1();
+            self.nextrand_3();
             let dword = ((self.rr >> 16) & 0xFFFF_FFFF) as u32;
             result |= BigInt::from(dword) << (i * 16);
         }
@@ -113,7 +115,18 @@ impl AribRandom {
         return result;
     }
 
-    pub fn current_seed(&self) -> u64 {
+    pub fn get_current_seed(&self) -> u64 {
+        self.rr
+    }
+
+    pub fn random_seed(&mut self, seed: u64) -> u64 {
+        self.rr = seed;
+        self.set_nth_word(3, 1);
+        self.rr
+    }
+
+    pub fn random_seed_by_timestamp(&mut self, timestamp: u32) -> u64 {
+        self.inirandstate_timestamp(timestamp);
         self.rr
     }
 }

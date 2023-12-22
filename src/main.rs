@@ -3,6 +3,7 @@
 mod c_rand;
 mod arib_rand;
 mod next_prime;
+mod tests;
 
 use std::str::FromStr;
 use num_bigint::BigInt;
@@ -21,9 +22,6 @@ fn main() {
     // for t in start..=end {
     //     let mut r = AribRandom::init_timestamp(t);
     //     let n = r.random(BigInt::from(10).pow(100));
-    //     // let n = r.current_seed();
-    //
-    //     // println!("t = {}, seed = {}, n = {}", t, r.current_seed(), n);
     //     println!("rand = {}", n);
     //
     //     if n == target {
@@ -36,6 +34,10 @@ fn main() {
     //     // println!("random: {}", r.random(BigInt::from(1000000)));
     // }
 
+    let mut r = AribRandom::new();
+    r.random_seed(100);
+    println!("{}", r.random(BigInt::from(10_000_000)));
+
     // println!("timestamp {}", timestamp());
 
     // let mut r = AribRandom::init_timestamp(1);
@@ -44,15 +46,15 @@ fn main() {
     // println!("wanted");
     // println!("seed: {}, random: {}", 40999_47846_45464u64, 78);
     //
-    let mut r = AribRandom::init_timestamp(1);
-    println!();
-    println!("seed: {}, random: {}", r.current_seed(), r.random(BigInt::from(10).pow(100)));
+    // let mut r = AribRandom::init_timestamp(1);
+    // println!();
     // println!("seed: {}, random: {}", r.current_seed(), r.random(BigInt::from(10).pow(100)));
-    println!("wanted");
-    println!("seed: {}, random: {}",
-             40999_47846_45464u64,
-             BigInt::from_str("55680_30889_00205_84074_43538_50309_90444_35182_18816_18299_61764_60818_75813_41698_13965_17677_09884_18351_14710_42350").unwrap(),
-    );
+    // // println!("seed: {}, random: {}", r.current_seed(), r.random(BigInt::from(10).pow(100)));
+    // println!("wanted");
+    // println!("seed: {}, random: {}",
+    //          40999_47846_45464u64,
+    //          BigInt::from_str("55680_30889_00205_84074_43538_50309_90444_35182_18816_18299_61764_60818_75813_41698_13965_17677_09884_18351_14710_42350").unwrap(),
+    // );
     // println!("seed: {}, random: {}",
     //          38684_29670_31011u64,
     //          BigInt::from_str("31573_80640_55592_34913_44114_07299_61249_85945_47460_54931_62321_14100_7866_45777_65235_79385_73359_38392_66314_24370").unwrap(),
