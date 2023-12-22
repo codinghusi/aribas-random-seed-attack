@@ -39,18 +39,18 @@ fn main() {
     //     }
     // }
 
-    let t = 1703281694;
+    let t = 1703283510;
     println!("Scroll of truth said: {}", NaiveDateTime::from_timestamp_opt(t as i64, 0).unwrap().format("%Y-%m-%d %H:%M:%S"));
 
     let measure = Instant::now();
 
     // let timerange = range("2023-12-22 00:00:00", "2023-12-22 23:59:59");
-    let target = BigInt::from_str("3684_61746_05577_50683_10709_42640_93223_79572_04755_58317_08314_90649_74909_67418_72514_69967_00182_03247_29099_27120_99919_17106_16898_35791_94785_14437_34333_99377_35415_52847_18410_88701_77332_76251_62950_44103_76810_31659_00986_29913").unwrap();
+    let target = BigInt::from_str("47271_59574_59763_68415_33447_92676_65329_14158_62478_16179_57909_25741_92028_51745_92083_15950_61430_62446_30345_81188_34180_82451_20958_04341_65176_64490_85546_61901_69479_26730_92650_86850_74318_68645_43716_46484_80900_34209_42107_70977").unwrap();
 
-    let deepness = 1;
+    let deepness = 2;
     let num_threads = 16;
 
-    let timerange = t+10000..(t + 10000*2);
+    let timerange = t-1000..(t + 10000);
     let len = timerange.len() as u32;
 
     match threaded_bruteforce(timerange, target, deepness, num_threads, len) {
