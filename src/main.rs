@@ -11,7 +11,7 @@ use std::str::FromStr;
 use num_bigint::BigInt;
 use next_prime::next_prime;
 use chrono::{NaiveDate, NaiveDateTime};
-use crate::bruteforce::{batched_bruteforce, bruteforce};
+use crate::bruteforce::{batched_bruteforce, bruteforce, BruteforceResult, threaded_bruteforce};
 
 
 fn main() {
@@ -23,12 +23,15 @@ fn main() {
     let from = date.and_hms_opt(9, 0, 0).unwrap().timestamp() as u32;
     let to = date.and_hms_opt(10, 0, 0).unwrap().timestamp() as u32;
 
-    match batched_bruteforce(from..to, target, 1, 60) {
-        Some((p, q, t)) => {
+    let deepness = 1;
+    let num_threads = 8;
+
+    match threaded_bruteforce(from..to, target, deepness, num_threads, to - from) {
+        Some(BruteforceResult { p, q, timestamp }) => {
             println!("Found it!");
             println!("p = {}", p);
             println!("q = {}", q);
-            println!("Aribas was opened at {}", NaiveDateTime::from_timestamp_opt(t as i64, 0).unwrap().format("%Y-%m-%d %H:%M:%S"));
+            println!("Aribas was opened at {}", NaiveDateTime::from_timestamp_opt(timestamp as i64, 0).unwrap().format("%Y-%m-%d %H:%M:%S"));
         }
         None => println!("Unfortunately, bruteforce didn't work :/")
     }
