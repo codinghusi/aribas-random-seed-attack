@@ -6,4 +6,10 @@ version = "0.1.0"
 [dependencies]
 num-bigint = { version = "0.4.4", features = ["rand"] }
 num-traits = "0.2.17"
-rand = "0.8.5"
+rand = { version = "0.8.5", features = [] }
+chrono = "0.4.31"
+itertools = "0.12.0"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1

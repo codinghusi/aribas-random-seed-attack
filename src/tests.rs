@@ -3,6 +3,7 @@ mod tests {
     use std::str::FromStr;
     use num_bigint::BigInt;
     use crate::arib_rand::AribRandom;
+    use crate::next_prime::next_prime;
 
     #[test]
     fn seed_1() {
@@ -41,5 +42,11 @@ mod tests {
         let mut r = AribRandom::new();
         r.random_seed_by_timestamp(1703227980);
         assert_eq!(r.get_current_seed(), 34343_13636_56552u64);
+    }
+
+    #[test]
+    fn next_prime_1() {
+        let n = BigInt::from(10).pow(100);
+        assert_eq!(next_prime(n.clone()), n + 267);
     }
 }
