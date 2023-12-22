@@ -36,12 +36,6 @@ impl AribRandom {
         result
     }
 
-    pub fn init_timestamp(timestamp: u32) -> Self {
-        let mut result = Self { rr: 0, state: CRandom::new() };
-        result.inirandstate_timestamp(timestamp);
-        result
-    }
-
     fn set_nth_word(&mut self, n: u8, word: u16) {
         self.rr &= !(0xFFFFu64 << (n * 16));
         self.rr |= (word as u64) << (n * 16);
@@ -128,6 +122,11 @@ impl AribRandom {
     pub fn random_seed(&mut self, seed: u64) -> u64 {
         self.rr = seed;
         self.set_nth_word(3, 1);
+        self.rr
+    }
+
+    pub fn random_seed_by_timestamp(&mut self, timestamp: u32) -> u64 {
+        self.inirandstate_timestamp(timestamp);
         self.rr
     }
 }
