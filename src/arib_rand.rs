@@ -1,5 +1,5 @@
 use std::time::SystemTime;
-use num_bigint::{BigInt, BigUint};
+use num_bigint::BigUint;
 use num_traits::identities::Zero;
 use crate::c_rand::CRandom;
 
@@ -107,7 +107,13 @@ impl AribRandom {
         return result;
     }
 
-    pub fn current_seed(&self) -> u64 {
+    pub fn get_current_seed(&self) -> u64 {
+        self.rr
+    }
+
+    pub fn random_seed(&mut self, seed: u64) -> u64 {
+        self.rr = seed;
+        self.set_nth_word(3, 1);
         self.rr
     }
 }
