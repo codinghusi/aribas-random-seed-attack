@@ -6,27 +6,45 @@ mod arib_rand;
 mod next_prime;
 mod tests;
 mod bruteforce;
+mod ranges;
 
+use std::ops::Range;
 use std::str::FromStr;
+use std::time::Instant;
 use num_bigint::BigInt;
 use next_prime::next_prime;
-use chrono::{NaiveDate, NaiveDateTime};
-use crate::bruteforce::{batched_bruteforce, bruteforce, BruteforceResult, threaded_bruteforce};
+use chrono::{DateTime, Local, NaiveDate, NaiveDateTime};
+use crate::arib_rand::{AribRandom, AribRandomWindows};
+use crate::bruteforce::{batched_bruteforce, bruteforce, BruteforceResult, threaded_bruteforce, threaded_bruteforce_multi_progressbar};
+use crate::c_rand::CRandom;
+use crate::ranges::{rearrange_ranges, Ranges};
 
+type Timestamp = u32;
+
+fn range(from: &str, to: &str) -> Range<u32> {
+    let from = DateTime::<Local>::from_str(&format!("{} +0100", from)).unwrap().timestamp() as u32;
+    let to = DateTime::<Local>::from_str(&format!("{} +0100", to)).unwrap().timestamp() as u32;
+    from..to
+}
 
 fn main() {
-    println!("Scroll of truth said: {}", NaiveDateTime::from_timestamp_opt(1703238264, 0).unwrap().format("%Y-%m-%d %H:%M:%S"));
 
-    let target = BigInt::from_str("1303_36591_76531_11614_30998_87393_66568_69224_49903_84161_10639_32154_64486_84477_66119_63697_36408_67843_80322_29457_34917_09809_85625_81842_33078_45614_11101_73264_39086_46303_90409_28881_21320_72807_73242_14173_06116_88125_03667_22827").unwrap();
+    let t = 1703280459u32;
+    println!("Scroll of truth said: {}", NaiveDateTime::from_timestamp_opt(t as i64, 0).unwrap().format("%Y-%m-%d %H:%M:%S"));
 
-    let date = NaiveDate::from_ymd_opt(2023, 12, 22).unwrap();
-    let from = date.and_hms_opt(9, 0, 0).unwrap().timestamp() as u32;
-    let to = date.and_hms_opt(10, 0, 0).unwrap().timestamp() as u32;
+    let measure = Instant::now();
+
+    // let timerange = range("2023-12-22 00:00:00", "2023-12-22 23:59:59");
+    let target = BigInt::from_str("175_57269_22656_47610_58334_46854_73969_47771_69413_44027_01823_44030_29905_25519_46713_72215_73916_44501_30281_22708_30868_65448_05279_78456_81918_72276_61288_69080_53876_26781_86282_40821_55218_93311_21256_41224_29306_09557_00554_71931").unwrap();
+
+    let timerange = (t - 120)..(t + 120);
 
     let deepness = 1;
-    let num_threads = 8;
+    let num_threads = 16;
 
-    match threaded_bruteforce(from..to, target, deepness, num_threads, to - from) {
+    let len = timerange.len() as u32;
+
+    match threaded_bruteforce(timerange, target, deepness, num_threads, len) {
         Some(BruteforceResult { p, q, timestamp }) => {
             println!("Found it!");
             println!("p = {}", p);
@@ -35,4 +53,6 @@ fn main() {
         }
         None => println!("Unfortunately, bruteforce didn't work :/")
     }
+
+    println!("took at whole: {:?}", measure.elapsed());
 }
