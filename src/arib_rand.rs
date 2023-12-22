@@ -1,5 +1,5 @@
 use std::time::SystemTime;
-use num_bigint::BigInt;
+use num_bigint::{BigInt, BigUint};
 use num_traits::identities::Zero;
 use crate::c_rand::CRandom;
 
@@ -86,23 +86,23 @@ impl AribRandom {
         self.set_nth_word(3, 1);
     }
 
-    pub fn random(&mut self, m: BigInt) -> BigInt {
-        let mut result = BigInt::zero();
-        let len = m.to_bytes_be().1.len();
+    pub fn random(&mut self, m: BigUint) -> BigUint {
+        let mut result = BigUint::zero();
+        let len = m.to_bytes_be().len();
         let len16 = len / 2;
         if len <= 2 {
             self.nextrand2();
             if m.is_zero() {
                 return m;
             }
-            return BigInt::from(((self.rr >> 16) & 0xFFFF) % m);
+            return BigUint::from(((self.rr >> 16) & 0xFFFF) % m);
         }
         for i in (0..len16).step_by(2) {
             self.nextrand1();
             let dword = ((self.rr >> 16) & 0xFFFF_FFFF) as u32;
-            result |= BigInt::from(dword) << (i * 16);
+            result |= BigUint::from(dword) << (i * 16);
         }
-        result &= !(BigInt::from(0xFFFF) << (len * 8));  // somehow the leftmost 16 bit need to be cut away, idk
+        result &= !(BigUint::from(0xFFFF) << (len * 8));  // somehow the leftmost 16 bit need to be cut away, idk
         result %= m;
         return result;
     }
