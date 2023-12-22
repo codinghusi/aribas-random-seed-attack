@@ -14,9 +14,8 @@ use std::time::Instant;
 use num_bigint::BigInt;
 use next_prime::next_prime;
 use chrono::{DateTime, Local, NaiveDate, NaiveDateTime};
-use crate::arib_rand::{AribRandom, AribRandomWindows};
+use crate::arib_rand::AribasRandom;
 use crate::bruteforce::{batched_bruteforce, bruteforce, BruteforceResult, threaded_bruteforce, threaded_bruteforce_multi_progressbar};
-use crate::c_rand::CRandom;
 use crate::ranges::{rearrange_ranges, Ranges};
 
 type Timestamp = u32;
@@ -29,19 +28,29 @@ fn range(from: &str, to: &str) -> Range<u32> {
 
 fn main() {
 
-    let t = 1703280459u32;
+    // let target = 408;
+    // let range = 1703281420-1000..1703281420+1000;
+    // for t in range {
+    //     let mut r = AribRandomWindows::new();
+    //     r.random_seed_by_timestamp(t);
+    //     if r.random(BigInt::from(1000)) == BigInt::from(target) {
+    //         println!("found it");
+    //         break;
+    //     }
+    // }
+
+    let t = 1703281694;
     println!("Scroll of truth said: {}", NaiveDateTime::from_timestamp_opt(t as i64, 0).unwrap().format("%Y-%m-%d %H:%M:%S"));
 
     let measure = Instant::now();
 
     // let timerange = range("2023-12-22 00:00:00", "2023-12-22 23:59:59");
-    let target = BigInt::from_str("175_57269_22656_47610_58334_46854_73969_47771_69413_44027_01823_44030_29905_25519_46713_72215_73916_44501_30281_22708_30868_65448_05279_78456_81918_72276_61288_69080_53876_26781_86282_40821_55218_93311_21256_41224_29306_09557_00554_71931").unwrap();
-
-    let timerange = (t - 120)..(t + 120);
+    let target = BigInt::from_str("3684_61746_05577_50683_10709_42640_93223_79572_04755_58317_08314_90649_74909_67418_72514_69967_00182_03247_29099_27120_99919_17106_16898_35791_94785_14437_34333_99377_35415_52847_18410_88701_77332_76251_62950_44103_76810_31659_00986_29913").unwrap();
 
     let deepness = 1;
     let num_threads = 16;
 
+    let timerange = t+10000..(t + 10000*2);
     let len = timerange.len() as u32;
 
     match threaded_bruteforce(timerange, target, deepness, num_threads, len) {

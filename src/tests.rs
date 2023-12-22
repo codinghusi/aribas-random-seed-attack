@@ -2,13 +2,13 @@
 mod tests {
     use std::str::FromStr;
     use num_bigint::BigInt;
-    use crate::arib_rand::{AribRandom, AribRandomLinux, AribRandomWindows};
-    use crate::c_rand::{CRandom, CRandomLinux, CRandomWindows};
+    use crate::arib_rand::{AribasRandom};
+    use crate::c_rand::{CRandomLinux, CRandomWindows};
     use crate::next_prime::next_prime;
 
     #[test]
     fn seed_1() {
-        let mut r = AribRandomLinux::new();
+        let mut r = AribasRandom::new_linux();
         assert_eq!(r.random_seed(1),
                    28147_49767_10657u64);
         assert_eq!(r.random(10.into()),
@@ -27,7 +27,7 @@ mod tests {
 
     #[test]
     fn seed_2() {
-        let mut r = AribRandomLinux::new();
+        let mut r = AribasRandom::new_linux();
         assert_eq!(r.random_seed(123456789),
                    28147_51001_67445u64);
         assert_eq!(r.random(1234.into()),
@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     fn time_seed() {
-        let mut r = AribRandomLinux::new();
+        let mut r = AribasRandom::new_linux();
         r.random_seed_by_timestamp(1703227980);
         assert_eq!(r.get_current_seed(), 34343_13636_56552u64);
     }
@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn seed_windows_1() {
-        let mut r = AribRandomWindows::new();
+        let mut r = AribasRandom::new_windows();
         let timestamp = 1703276746;
         let seed = r.random_seed_by_timestamp(timestamp);
         assert_eq!(seed, 44789_13194_87473u64)

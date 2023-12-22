@@ -7,7 +7,7 @@ use std::fmt::Write;
 use std::rc::Rc;
 use num_bigint::BigInt;
 use num_traits::Zero;
-use crate::arib_rand::{AribRandom, AribRandomWindows};
+use crate::arib_rand::AribasRandom;
 use crate::next_prime::next_prime;
 use itertools::Itertools;
 use threadpool::ThreadPool;
@@ -137,7 +137,7 @@ pub fn threaded_bruteforce_multi_progressbar(timestamps: Ranges, n: BigInt, deep
 }
 
 pub fn threaded_bruteforce(timestamps: impl Iterator<Item=u32>, n: BigInt, deepness: u8, thread_count: usize, total_seconds: u32) -> Option<BruteforceResult> {
-    let batch_size = 120;
+    let batch_size = 30;
     let pool = ThreadPool::new(thread_count);
 
     let (tx, rx) = channel::<Status>();
@@ -205,7 +205,7 @@ pub fn batched_bruteforce(timestamps: impl Iterator<Item=u32>, n: BigInt, deepne
 
 pub fn bruteforce(timestamps: impl Iterator<Item=u32>, n: BigInt, deepness: u8) -> Option<BruteforceResult> {
     let rand_stop = BigInt::from(10).pow(100);
-    let mut r = AribRandomWindows::new();
+    let mut r = AribasRandom::new_windows();
     for t in timestamps {
         r.random_seed_by_timestamp(t);
         for _ in 0..deepness {
