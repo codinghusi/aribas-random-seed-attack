@@ -2,9 +2,8 @@
 
 mod c_rand;
 mod arib_rand;
-
-use std::str::FromStr;
-use num_bigint::{BigInt, BigUint};
+mod tests;
+use num_bigint::BigInt;
 use crate::arib_rand::AribRandom;
 
 fn main() {
@@ -30,8 +29,8 @@ fn main() {
     // }
 
     let mut r = AribRandom::new();
-    r.set_seed(100);
-    println!("{}", r.random(BigUint::from(10_000_000)));
+    r.random_seed(100);
+    println!("{}", r.random(BigInt::from(10_000_000)));
 
     // println!("timestamp {}", timestamp());
 
