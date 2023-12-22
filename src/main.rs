@@ -2,11 +2,17 @@
 
 mod c_rand;
 mod arib_rand;
+mod next_prime;
 mod tests;
+
+use std::str::FromStr;
 use num_bigint::BigInt;
-use crate::arib_rand::AribRandom;
+use crate::{arib_rand::AribRandom, next_prime::next_prime};
+
 
 fn main() {
+    let n = BigInt::from_str(&String::from("5")).unwrap();
+    println!("{}", next_prime(&n));
     // let middle = 1703179901;
     // let r = 10;
     // let start: u32 = middle - r;
