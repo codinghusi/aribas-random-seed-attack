@@ -17,6 +17,7 @@ use chrono::{DateTime, Local, NaiveDate, NaiveDateTime};
 use crate::arib_rand::AribasRandom;
 use crate::bruteforce::{batched_bruteforce, bruteforce, BruteforceResult, threaded_bruteforce, threaded_bruteforce_multi_progressbar};
 use crate::ranges::{rearrange_ranges, Ranges};
+use std::iter::Extend;
 
 type Timestamp = u32;
 
@@ -27,31 +28,19 @@ fn range(from: &str, to: &str) -> Range<u32> {
 }
 
 fn main() {
-
-    // let target = 408;
-    // let range = 1703281420-1000..1703281420+1000;
-    // for t in range {
-    //     let mut r = AribRandomWindows::new();
-    //     r.random_seed_by_timestamp(t);
-    //     if r.random(BigInt::from(1000)) == BigInt::from(target) {
-    //         println!("found it");
-    //         break;
-    //     }
-    // }
-
-    let t = 1703283510;
-    println!("Scroll of truth said: {}", NaiveDateTime::from_timestamp_opt(t as i64, 0).unwrap().format("%Y-%m-%d %H:%M:%S"));
-
     let measure = Instant::now();
 
-    // let timerange = range("2023-12-22 00:00:00", "2023-12-22 23:59:59");
-    let target = BigInt::from_str("47271_59574_59763_68415_33447_92676_65329_14158_62478_16179_57909_25741_92028_51745_92083_15950_61430_62446_30345_81188_34180_82451_20958_04341_65176_64490_85546_61901_69479_26730_92650_86850_74318_68645_43716_46484_80900_34209_42107_70977").unwrap();
+    let target = BigInt::from_str("32115920099212569105106779097640231161112770207070059646211939683635728962265075652991614878272272454539611555745310747733885970866333511478662533604607053662543710242659089271255121936433439154585717").unwrap();
 
     let deepness = 2;
     let num_threads = 16;
 
-    let timerange = t-1000..(t + 10000);
-    let len = timerange.len() as u32;
+    let timerange = range("2018-11-20 00:00:00", "2018-12-04 00:00:00")
+                                   .chain(range("2019-11-20 00:00:00", "2019-12-04 00:00:00"))
+                                   .chain(range("2020-11-20 00:00:00", "2020-12-04 00:00:00"))
+                                   .chain(range("2021-11-20 00:00:00", "2021-12-04 00:00:00"))
+                                   .chain(range("2022-11-20 00:00:00", "2022-12-04 00:00:00"));
+    let len = (range("2018-11-20 00:00:00", "2018-12-04 00:00:00").len() as u32) * 5;
 
     match threaded_bruteforce(timerange, target, deepness, num_threads, len) {
         Some(BruteforceResult { p, q, timestamp }) => {
