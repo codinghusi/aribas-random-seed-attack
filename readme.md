@@ -1,11 +1,11 @@
 # Über das Projekt
 Ende November 2023 hat mein Professor in dem Modul "Kryptologie" ein Rätsel veröffentlicht:  
-Gegeben ist ein $n = p \cdot q$, wobei $p$ und $q$ Primzahlen sind.   
+Gegeben ist ein $n = p \cdot q$, wobei $p$ und $q$ Primzahlen sind.  
 Wer ihm als erstes bis Ende Januar das $p$ und $q$ nennen kann, bekommt von ihm 100 Euro.
 
 ![img.png](img.png)
 
-Die Sicherheit eines weitverbreiteten Verschlüsselungsalgorithmus (RSA) basiert genau darauf, dass die Lösung einer solchen Aufgabe sehr schwierig ist.
+Die Sicherheit eines weitverbreiteten Verschlüsselungsalgorithmus (RSA) basiert genau darauf, dass die Lösung einer solchen Aufgabe sehr schwierig ist.  
 
 Aus dem Kontext der Vorlesung heraus kann man sich überlegen, dass die Zahl n mit der Software [ARIBAS](https://www.mathematik.uni-muenchen.de/~forster/sw/aribas.html) entwickelt wurde.
 ```
@@ -14,10 +14,10 @@ n := next_prime(random(10**100)) * next_prime(random(10**100)).
 
 
 # Ansätze
-## Faktorisieren
-Ließe man eine Zahl $p'$ im Bereich $10^99 <= p' < 10^100$ laufen und würde Probedivisionen machen: $n \mod p' = 0$, hätte man einen Aufwand von $10^99$ Probedivisionen. Im Vergleich: Die Anzahl der Atome im Universum liegt bei ca. $10^84$.
-Man würde also eine Ewigkeit warten müssen, bis eine Probedivision zum Erfolg führt.
-Dies ist natürlich ein sehr naiver Ansatz und es gibt tatsächlich komplizierte Möglichkeiten, eine solch "kleine" Zahl anzugreifen. RSA Zahlen sind heutzutage daher weitaus größer.
+## Probedivisionen
+Ließe man eine Zahl $p'$ im Bereich $10^{99} <= p' < 10^{100}$ laufen und würde Probedivisionen machen: $n \mod p' = 0$, hätte man einen Aufwand von $10^{99}$ Probedivisionen. Im Vergleich: Die Anzahl der Atome im Universum liegt bei ca. $10^{84}$.
+Man würde also eine Ewigkeit warten müssen, bis eine Probedivision zum Erfolg führt.  
+Dies ist natürlich ein sehr naiver Ansatz und es gibt durchaus klügere Möglichkeiten, eine solch "kleine" Zahl anzugreifen. RSA Zahlen sind heutzutage daher weitaus größer.
 
 ## Zufälligkeit angreifen
 In manchen Programmen wird ein schlechter Zufall genutzt, sodass man bspw. mit Kenntnis des Startzeitpunkts des Programms, die selben Zufallszahlen, also auch die selben Primzahlen ziehen kann.
@@ -36,7 +36,8 @@ zurückgreift.
 Ich möchte mich in dem Zuge auch bei Herrn Prof. Forster bedanken (der Entwickler von ARIBAS). Er hatte mir bei meinen Fragen bezüglich der Implementierung geholfen.
 
 Da ich sicher nicht sagen kann, wann mein Professor sein Programm geöffnet hat (um das n zu berechnen), muss ich stattdessen versuchen den Zeitraum eingrenzen und alle Sekunden in diesem Zeitraum ausprobieren. Leider stellt sich auch das als Schwierigkeit heraus, da das Rätsel schon in den Jahren zuvor gestellt wurde und der Professor nicht sagen wollte, wann er das Rätsel das erste mal gestellt hat.
-Ist der Bruteforce Algorithmus jedoch schnell genug, kann man einfach ein paar Jahre (jeweils im Zeitraum zwischen November und Dezember) durchtesten und den Rechner einen Tag durchlaufen lassen. Der Aufwand, um 5 Jahre durchzutesten, sollte in der Größenordnung 2^24 bzw. 10^8 liegen (Anzahl an Primzahlberechnungen "next_prime"). Das sind also nur ein paar Millionen Möglichkeiten (was sehr viel besser machbar ist).
+Ist der Bruteforce Algorithmus jedoch schnell genug, kann man einfach ein paar Jahre (jeweils im Zeitraum zwischen November und Dezember) durchtesten und den Rechner einen Tag durchlaufen lassen. Der Aufwand, um 5 Jahre durchzutesten, sollte in der Größenordnung $2^{24}$ bzw. $10^8$ liegen (Anzahl an Primzahlberechnungen "next_prime").  
+Das sind also nur ein paar Millionen Möglichkeiten (was sehr viel besser machbar ist).
 
 Da mir ARIBAS selbst zu langsam war und keine Funktionen zu Parallelisierung von Berechnungen bereitstellt, habe ich mich kurzerhand dazu entschlossen, den Zufallsalgorithmus nachzuimplementieren.
 Ich musste mich ein wenig in dem Source Code von Herrn Forster zurechtfinden. Schließlich hatte ich dann aber einen guten Überblick und konnte auch eigene Funktionen in das Programm hinein implementieren, sodass mir das Debugging einfacher fiel. 
@@ -60,7 +61,7 @@ Nach dem Festlegen einer Zeitspanne wollte ich das Programm nun über Nacht lauf
 
 **DAS RÄTSEL WAR GELÖST**
 
-Am nächsten Tag tauschte ich mich noch mit meinem Kommilitonen aus. Wir sind darauf gekommen, dass die Wahl einer Zeitspanne ziemlich unrelevant war, da die Implementierung von `rand()` in Windows nur $2^15$ Ausgaben haben kann.
+Am nächsten Tag tauschte ich mich noch mit meinem Kommilitonen aus. Wir sind darauf gekommen, dass die Wahl einer Zeitspanne ziemlich unrelevant war, da die Implementierung von `rand()` in Windows nur $2^{15}$ Ausgaben haben kann.
 
 In der finalen Version werden nun einfach alle Möglichkeiten von `0` bis `0x7fff` ausprobiert. Erfahrungsgemäß dauert ein Angriff bis zu zwei Minuten.
 
