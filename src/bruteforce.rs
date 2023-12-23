@@ -222,3 +222,70 @@ pub fn bruteforce(timestamps: impl Iterator<Item=u32>, n: BigInt, deepness: u8) 
     }
     None
 }
+
+pub fn bruteforce_fast(values: impl Iterator<Item=u32>, n: BigInt) -> Option<BruteforceResult> {
+    let rand_stop = BigInt::from(10).pow(100);
+    let mut r = AribasRandom::new_windows_crack();
+    for t in values {
+        r.random_seed_by_timestamp(t);
+        for _ in 0..2 {
+            let a = r.random(rand_stop.clone());
+            let p = next_prime(a);
+            if (&n % &p).is_zero() {
+                return Some(BruteforceResult {
+                    q: n / &p,
+                    p,
+                    timestamp: t
+                });
+            }
+        }
+    }
+    None
+}
+
+pub fn threaded_bruteforce_fast(n: BigInt, thread_count: usize) -> Option<BruteforceResult> {
+    let timestamps = 0..=0x7fff;
+    let total_seconds = 0x7fff + 1;
+    let batch_size = 30;
+    let pool = ThreadPool::new(thread_count);
+
+    let (tx, rx) = channel::<Status>();
+
+    for batch in &timestamps.chunks(batch_size.try_into().unwrap()) {
+        let tx = tx.clone();
+        let batch = batch.collect::<Vec<_>>();
+        let n = n.clone();
+        pool.execute(move|| {
+            let start_timestamp = batch[0];
+            let end_timestamp = start_timestamp + batch_size;
+
+            let measurement = Instant::now();
+            if let Some(result) = bruteforce_fast(batch.into_iter(), n.clone()) {
+                tx.send(Status::Found(result)).unwrap();
+                return;
+            }
+            let time_elapsed = measurement.elapsed();
+
+            tx.send(Status::Done {
+                timestamp_from: start_timestamp,
+                timestamp_to: end_timestamp,
+                time_elapsed
+            }).unwrap();
+        })
+    }
+
+    for status in rx.iter().take((total_seconds / batch_size) as usize) {
+        match status {
+            Status::Done { timestamp_from, timestamp_to, time_elapsed} => {
+                println!("DONE {} -> {}, it took {:?}",
+                    timestamp_from,
+                    timestamp_to,
+                    time_elapsed
+                );
+            }
+            Status::Found(result) => return Some(result)
+        }
+    }
+
+    None
+}

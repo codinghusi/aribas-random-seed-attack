@@ -8,7 +8,8 @@ use crate::c_rand::{CRandomWindows, CRandomLinux};
 
 pub enum Platform {
     Windows,
-    Linux
+    Linux,
+    WindowsCrack
 }
 
 pub struct AribasRandom {
@@ -22,6 +23,10 @@ impl AribasRandom {
 
     pub fn new_windows() -> Self {
         Self { rr: 0, platform: Platform::Windows }
+    }
+
+    pub fn new_windows_crack() -> Self {
+        Self { rr: 0, platform: Platform::WindowsCrack }
     }
 
     fn time() -> u64 {
@@ -46,6 +51,9 @@ impl AribasRandom {
                 let mut r = CRandomLinux::new();
                 r.srand(timestamp);
                 r.rand()
+            },
+            Platform::WindowsCrack => {
+                timestamp
             }
         }
     }
