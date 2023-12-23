@@ -29,6 +29,7 @@ srand(time(NULL)); // time(NULL) gibt die Anzahl der vergangenen Sekunden seit d
 Die Überlegung ist nun, ob ARIBAS auch zu solchen Programmen zählt.
 Nachforschungen zeigen, dass ARIBAS zwar einen eigenen Zufallsalgorithmus bereitstellt, jedoch für den Seed auf die Berechnung
 ```c
+// Stark vereinfachte Darstellung des Vorgangs:
 srand(time(NULL));
 aribas_seed = rand();
 ```
