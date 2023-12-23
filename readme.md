@@ -73,3 +73,8 @@ Nach der Installation von Rust kann man dann den Befehl
 cargo run --release
 ```
 ausführen und auf das Ergebnis warten.
+
+# Mitwirkende
+Vielen Dank an Herrn Prof. Forster, der mir meine Fragen so ausführlich beantworten konnte (und sehr zeitnah).  
+Ebenfalls danke ich @majdbousaad, mit dem ich die letzten Tage intensiven Austausch hatte und mir den Source Code für das `rand()` unter Windows herausgesucht hat.  
+Danke auch an alle anderen Kommilitonen, mit denen ich viele Gedanken austauschen konnte.
