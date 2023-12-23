@@ -228,7 +228,7 @@ pub fn bruteforce_fast(values: impl Iterator<Item=u32>, n: BigInt) -> Option<Bru
     let mut r = AribasRandom::new_windows_crack();
     for t in values {
         r.random_seed_by_timestamp(t);
-        for _ in 0..2 {
+        for _ in 0..1 {
             let a = r.random(rand_stop.clone());
             let p = next_prime(a);
             if (&n % &p).is_zero() {
